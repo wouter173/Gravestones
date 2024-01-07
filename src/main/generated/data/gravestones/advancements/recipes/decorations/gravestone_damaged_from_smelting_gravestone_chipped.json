@@ -35,8 +35,8 @@
   },
   "requirements": [
     [
-      "has_the_recipe",
-      "has_gravestone_chipped"
+      "has_gravestone_chipped",
+      "has_the_recipe"
     ]
   ],
   "rewards": {
