@@ -2,14 +2,15 @@
 	"schemaVersion": 1,
 	"id": "gravestones",
 	"version": "${version}",
-	"name": "Gravestones",
+	"name": "Wouter's Gravestones",
 	"description": "Adds Gravestones that store items after death.",
 	"authors": [
-		"Pneumono_"
+		"Pneumono_",
+		"wouterdb"
 	],
 	"contact": {
-		"sources": "https://github.com/PneumonoIsNotAvailable/Gravestones",
-		"issues": "https://github.com/PneumonoIsNotAvailable/Gravestones/issues"
+		"sources": "https://github.com/wouter173/Gravestones",
+		"issues": "https://github.com/wouter173/Gravestones/issues"
 	},
 	"license": "MIT",
 	"icon": "assets/gravestones/icon.png",
@@ -40,7 +41,8 @@
 		"minecraft": "~1.20.1",
 		"java": ">=17",
 		"fabric-api": "*",
-		"pneumonocore": ">=1.1.0"
+		"pneumonocore": ">=1.0.9",
+		"trinkets": "*"
 	},
 	"suggests": {}
 }

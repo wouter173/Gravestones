@@ -1,5 +1,6 @@
 package net.pneumono.gravestones.content;
 
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
@@ -9,6 +10,7 @@ import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
@@ -23,6 +25,7 @@ import net.minecraft.stat.Stats;
 import net.minecraft.util.Identifier;
 import net.pneumono.gravestones.Gravestones;
 import net.pneumono.gravestones.content.entity.GravestoneBlockEntity;
+import net.pneumono.gravestones.enchantments.SoulBoundEnchantment;
 import net.pneumono.pneumonocore.migration.Migration;
 
 public class GravestonesRegistry {
@@ -38,6 +41,8 @@ public class GravestonesRegistry {
     public static final TagKey<Block> TAG_GRAVESTONE_IRREPLACEABLE = TagKey.of(RegistryKeys.BLOCK, new Identifier(Gravestones.MOD_ID, "gravestone_irreplaceable"));
 
     public static final Identifier GRAVESTONES_COLLECTED = new Identifier(Gravestones.MOD_ID, "gravestones_collected");
+
+    public static final Enchantment SOULBOUND = new SoulBoundEnchantment();
 
     public static BlockEntityType<GravestoneBlockEntity> GRAVESTONE_ENTITY = Registry.register(
             Registries.BLOCK_ENTITY_TYPE, new Identifier(Gravestones.MOD_ID, "gravestone"), FabricBlockEntityTypeBuilder.create(GravestoneBlockEntity::new, GravestonesRegistry.GRAVESTONE_TECHNICAL).build()
@@ -84,5 +89,12 @@ public class GravestonesRegistry {
         Migration.registerItemMigration(new Identifier(Gravestones.MOD_ID, "gravestone_default"), GRAVESTONE.asItem());
         Migration.registerBlockMigration(new Identifier(Gravestones.MOD_ID, "gravestone_default"), GRAVESTONE);
         Migration.registerBlockEntityMigration(new Identifier("gravestone"), GRAVESTONE_ENTITY);
+
+        Registry.register(Registries.ENCHANTMENT, new Identifier(Gravestones.MOD_ID, "soulbound"), SOULBOUND);
+        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
+            for (int i = 0; i < oldPlayer.getInventory().size(); i++) {
+                newPlayer.getInventory().setStack(i, oldPlayer.getInventory().getStack(i));
+            }
+        });
     }
 }

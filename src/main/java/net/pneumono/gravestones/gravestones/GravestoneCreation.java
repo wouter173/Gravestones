@@ -3,8 +3,8 @@ package net.pneumono.gravestones.gravestones;
 
 import com.google.gson.GsonBuilder;
 import com.mojang.authlib.GameProfile;
-import dev.emi.trinkets.api.SlotType;
 import dev.emi.trinkets.api.TrinketComponent;
+import dev.emi.trinkets.api.TrinketInventory;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -36,7 +36,9 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class GravestoneCreation {
@@ -149,11 +151,16 @@ public class GravestoneCreation {
     public static void insertPlayerItems(GravestoneBlockEntity gravestone, PlayerInventory inventory, TrinketComponent trinketComponent) {
         logger("Inserting Inventory items into grave...");
         for (int i = 0; i < inventory.size(); ++i) {
-            if (EnchantmentHelper.getLevel(Enchantments.VANISHING_CURSE, inventory.getStack(i)) == 0) {
-                gravestone.setStack(i, inventory.removeStack(i));
-            } else {
-                inventory.removeStack(i);
+            if (EnchantmentHelper.getLevel(GravestonesRegistry.SOULBOUND, inventory.getStack(i)) > 0) {
+                continue;
             }
+
+            if (EnchantmentHelper.getLevel(Enchantments.VANISHING_CURSE, inventory.getStack(i)) > 0) {
+                inventory.removeStack(i);
+                continue;
+            }
+
+            gravestone.setStack(i, inventory.removeStack(i));
         }
         logger("Items inserted!");
 
@@ -162,20 +169,34 @@ public class GravestoneCreation {
             return;
         }
 
-        List<Pair<SlotReferencePrimitive, ItemStack>> filteredTrinkets = trinketComponent
-                .getAllEquipped()
-                .stream()
-                .filter(pair -> EnchantmentHelper.getLevel(Enchantments.VANISHING_CURSE, pair.getRight()) == 0)
-                .map(pair -> {
-                    SlotType slotType = pair.getLeft().inventory().getSlotType();
-                    SlotReferencePrimitive slotReferencePrimitive = new SlotReferencePrimitive(slotType.getGroup(), slotType.getName());
-                    return new Pair<>(slotReferencePrimitive, pair.getRight());
-                })
-                .toList();
+        logger("Inserting Trinket items into grave...");
+        Map<String, Map<String, TrinketInventory>> trinketInventory = trinketComponent.getInventory();
+        List<Pair<SlotReferencePrimitive, ItemStack>> filteredTrinkets = new ArrayList<>();
 
-       gravestone.setTrinkets(filteredTrinkets);
-       trinketComponent.getInventory().clear();
+        for (String groupName : trinketInventory.keySet()) {
+            Map<String, TrinketInventory> group = trinketInventory.get(groupName);
 
+            for (String slotName : group.keySet()) {
+                TrinketInventory inv = group.get(slotName);
+
+                for (int i = 0; i < inv.size(); ++i) {
+                    ItemStack itemStack = inv.getStack(i);
+
+                    if (EnchantmentHelper.getLevel(GravestonesRegistry.SOULBOUND, itemStack) > 0) {
+                        continue;
+                    }
+
+                    if (EnchantmentHelper.getLevel(Enchantments.VANISHING_CURSE, itemStack) > 0) {
+                        inv.removeStack(i);
+                        continue;
+                    }
+
+                    filteredTrinkets.add(new Pair<>(new SlotReferencePrimitive(groupName, slotName), inv.removeStack(i)));
+                }
+            }
+        }
+
+        gravestone.setTrinkets(filteredTrinkets);
         logger("Trinkets inserted!");
     }
 

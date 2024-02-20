@@ -14,6 +14,8 @@
 
     "stat.gravestones.gravestones_collected": "Gravestones Collected",
 
+    "enchantment.gravestones.soulbound" : "Soulbound",
+
     "gravestones.configs_screen.title": "Gravestones Configs",
     "gravestones.configs.aesthetic_gravestones" : "Aesthetic Gravestones",
     "gravestones.configs.aesthetic_gravestones.tooltip" : "Whether or not aesthetic gravestones can be crafted for building purposes",
